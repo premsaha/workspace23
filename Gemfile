@@ -27,9 +27,10 @@ gem 'coffee-rails', '~> 4.2'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 group :test do
-  gem "rspec-rails", "~> 3.5"
+  gem "rspec-rails"
   gem "factory_girl_rails"
   gem 'ffaker'
+  gem "shoulda-matchers"
 end
 
 gem 'devise'
