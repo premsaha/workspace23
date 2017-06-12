@@ -24,14 +24,14 @@ gem 'coffee-rails', '~> 4.2'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 # Use Redis adapter to run Action Cable in production
 # gem 'redis', '~> 3.0'
+gem 'sabisu_rails', github: "IcaliaLabs/sabisu-rails"
+gem 'compass-rails'
+gem 'furatto'
+gem 'font-awesome-rails'
+gem 'simple_form'
+
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
-group :test do
-  gem "rspec-rails"
-  gem "factory_girl_rails"
-  gem 'ffaker'
-  gem "shoulda-matchers"
-end
 
 gem 'devise'
 # Use Capistrano for deployment

@@ -1,37 +1,107 @@
-class Api::V1::UserController < ApplicationController
-  respond_to :json
+require 'spec_helper'
 
-  def show
-    respond_with User.find(params[:id])
+describe Api::V1::UsersController do
+  before(:each) { request.headers['Accept'] = "application/vnd.marketplace.v1" }
+
+  describe "GET #show" do
+    before(:each) do
+      @user = FactoryGirl.create :user
+      get :show, id: @user.id, format: :json
+    end
+
+    it "returns the information about a reporter on a hash" do
+      user_response = JSON.parse(response.body, symbolize_names: true)
+      expect(user_response[:email]).to eql @user.email
+    end
+
+    it { should respond_with 200 }
   end
-    def create
-    user = User.new(user_params)
-    if user.save
-      render json: user, status: 201, location: [:api, user]
-    else
-      render json: { errors: user.errors }, status: 422
+
+  describe "POST #create" do
+
+    context "when is successfully created" do
+      before(:each) do
+        @user_attributes = FactoryGirl.attributes_for :user
+        post :create, { user: @user_attributes }, format: :json
+      end
+
+      it "renders the json representation for the user record just created" do
+        user_response = JSON.parse(response.body, symbolize_names: true)
+        expect(user_response[:email]).to eql @user_attributes[:email]
+      end
+
+      it { should respond_with 201 }
+    end
+
+    context "when is not created" do
+      before(:each) do
+        #notice I'm not including the email
+        @invalid_user_attributes = { password: "12345678",
+                            password_confirmation: "12345678" }
+        post :create, { user: @invalid_user_attributes },
+                                format: :json
+      end
+
+      it "renders an errors json" do
+        user_response = JSON.parse(response.body, symbolize_names: true)
+        expect(user_response).to have_key(:errors)
+      end
+
+      it "renders the json errors on whye the user could not be created" do
+        user_response = JSON.parse(response.body, symbolize_names: true)
+        expect(user_response[:errors][:email]).to include "can't be blank"
+      end
+
+      it { should respond_with 422 }
     end
   end
 
-  def update
-    user = User.find(params[:id])
+  describe "PUT/PATCH #update" do
+    before(:each) do
+      @user = FactoryGirl.create :user
+    end
 
-    if user.update(user_params)
-      render json: user, status: 200, location: [:api, user]
-    else
-      render json: { errors: user.errors }, status: 422
+    context "when is successfully updated" do
+      before(:each) do
+        patch :update, { id: @user.id, user: { email: "newmail@example.com" } },
+                         format: :json
+      end
+
+      it "renders the json representation for the updated user" do
+        user_response = JSON.parse(response.body, symbolize_names: true)
+        expect(user_response[:email]).to eql "newmail@example.com"
+      end
+
+      it { should respond_with 200 }
+    end
+
+    context "when is not created" do
+      before(:each) do
+        patch :update, { id: @user.id, user: { email: "bademail.com" } },
+                         format: :json
+      end
+
+      it "renders an errors json" do
+        user_response = JSON.parse(response.body, symbolize_names: true)
+        expect(user_response).to have_key(:errors)
+      end
+
+      it "renders the json errors on whye the user could not be created" do
+        user_response = JSON.parse(response.body, symbolize_names: true)
+        expect(user_response[:errors][:email]).to include "is invalid"
+      end
+
+      it { should respond_with 422 }
     end
   end
-  def destroy
-    user = User.find(params[:id])
-    user.destroy
-    head 204
+
+  describe "DELETE #destroy" do
+    before(:each) do
+      @user = FactoryGirl.create :user
+      delete :destroy, { id: @user.id }, format: :json
+    end
+
+    it { should respond_with 204 }
+
   end
-
-  private
-
-  def user_params
-     params.require(:user).permit(:email, :password, :password_confirmation)
-  end
-
 end

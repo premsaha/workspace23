@@ -1,6 +1,7 @@
 require 'spec_helper'
-
-RSpec.describe Api::v1::UserController, type: :controller do
+describe Api::V1::UserController, type: :controller do
+  before(:each) { request.headers['Accept'] = "application/vnd.marketplace.v1, #{Mime::JSON}" }
+  before(:each) { request.headers['Content-Type'] = Mime::JSON.to_s }
 	before(:each) { request.headers['Accept'] = "application/vnd.marketplace.v1" }
 
   describe "GET #show" do
@@ -97,4 +98,9 @@ describe "POST #create" do
     end
     it { should respond_with 204 }
   end
+it "returns the information about a reporter on a hash" do
+user_response = json_response # this is the updated line
+expect(user_response[:email]).to eql @user.email
+end
+
 end
